@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src 'self' data: blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta name="referrer" content="no-referrer">
+<title>知识分享 - KnowledgePC</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --text: #1f2937;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --primary: #1a73e8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+  .container {
+    max-width: 800px;
+    margin: 24px auto;
+    padding: 0 16px;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .entry-title {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .entry-meta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .type-badge.note { background: #e8f0fe; color: #1a73e8; }
+  .type-badge.skill { background: #fef3c7; color: #d97706; }
+  .type-badge.task { background: #fce4ec; color: #dc2626; }
+  .type-badge.idea { background: #f3e8ff; color: #7c3aed; }
+  .type-badge.article { background: #d1fae5; color: #059669; }
+  .tag-item {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+  .entry-content {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text);
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  .entry-content h1, .entry-content h2, .entry-content h3, .entry-content h4 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .entry-content h1 { font-size: 22px; }
+  .entry-content h2 { font-size: 19px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .entry-content h3 { font-size: 17px; }
+  .entry-content h4 { font-size: 15px; }
+  .entry-content p { margin-bottom: 16px; }
+  .entry-content ul, .entry-content ol { margin-bottom: 16px; padding-left: 24px; }
+  .entry-content li { margin-bottom: 4px; }
+  .entry-content blockquote {
+    margin: 16px 0;
+    padding: 12px 16px;
+    border-left: 4px solid var(--primary);
+    background: #f8fafc;
+    color: var(--text-secondary);
+    border-radius: 0 8px 8px 0;
+  }
+  .entry-content code {
+    padding: 2px 6px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  }
+  .entry-content pre {
+    margin: 16px 0;
+    padding: 16px;
+    background: #1f2937;
+    color: #e5e7eb;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .entry-content pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  .entry-content strong { font-weight: 600; }
+  .entry-content em { font-style: italic; }
+  .entry-content a { color: var(--primary); text-decoration: none; }
+  .entry-content a:hover { text-decoration: underline; }
+  .entry-content img { max-width: 100%; border-radius: 8px; margin: 16px 0; }
+  .entry-content hr { margin: 24px 0; border: none; border-top: 1px solid var(--border); }
+  .error-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: var(--text-secondary);
+  }
+  .error-state h2 { font-size: 20px; margin-bottom: 8px; color: var(--text); }
+  .loading {
+    text-align: center;
+    padding: 60px;
+    color: var(--text-secondary);
+  }
+  @media (max-width: 600px) {
+    .card { padding: 20px; }
+    .entry-title { font-size: 20px; }
+    .container { margin: 12px auto; }
+  }
+  .body-with-outline { display: flex; gap: 24px; align-items: flex-start; }
+  .outline-sidebar-share {
+    flex: 0 0 180px; position: sticky; top: 24px; max-height: calc(100vh - 80px); overflow-y: auto;
+    padding: 16px; background: #f8fafc; border-radius: 8px; border: 1px solid var(--border);
+  }
+  .outline-sidebar-share .outline-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; }
+  .outline-sidebar-share .outline-item { display: block; font-size: 13px; color: var(--primary); text-decoration: none; padding: 3px 0; cursor: pointer; }
+  .outline-sidebar-share .outline-item:hover { text-decoration: underline; }
+  .outline-sidebar-share .outline-item.h1 { padding-left: 0; font-weight: 500; }
+  .outline-sidebar-share .outline-item.h2 { padding-left: 16px; }
+  .outline-sidebar-share   .outline-item.h3 { padding-left: 32px; }
+  .content-main { flex: 1; min-width: 0; }
+  @media (max-width: 768px) { .body-with-outline { flex-direction: column; } .outline-sidebar-share { position: static; max-height: none; flex: none; } }
+  .share-header { display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .export-dropdown { position: relative; display: inline-block; }
+  .export-btn { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; cursor: pointer; color: var(--text-secondary); }
+  .export-btn:hover { background: #e8f0fe; color: var(--primary); border-color: var(--primary); }
+  .export-menu {
+    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); z-index: 100; min-width: 90px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 4px 0; margin-top: 4px;
+  }
+  .export-menu a {
+    display: block; padding: 8px 16px; font-size: 13px; color: var(--text);
+    text-decoration: none; cursor: pointer; white-space: nowrap; text-align: center;
+  }
+  .export-menu a:hover { background: #f3f4f6; }
+</style>
+</head>
+<body>
+  <div class="header"><div class="share-header"><span>知识分享 · KnowledgePC</span><div class="export-dropdown" id="exportDropdown"><button class="export-btn" onclick="toggleExportMenu(event)">📥 导出 ▾</button><div class="export-menu" style="display:none"><a onclick="exportMd()">.md</a><a onclick="exportTxt()">.txt</a><a onclick="exportDoc()">.doc</a></div></div></div></div>
+  <div class="container" id="app">
+    <div class="loading">加载中...</div>
+  </div>
+<script>
+let _entryData = null;
+function toggleExportMenu(event) {
+  event.stopPropagation();
+  const menu = document.querySelector('#exportDropdown .export-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+document.addEventListener('click', function() {
+  var m = document.querySelector('#exportDropdown .export-menu');
+  if (m) m.style.display = 'none';
+});
+function exportMd() {
+  if (!_entryData) return;
+  downloadFile(_entryData.content || '', _entryData.title + '.md');
+}
+function exportTxt() {
+  if (!_entryData) return;
+  downloadFile(_entryData.content || '', _entryData.title + '.txt');
+}
+function exportDoc() {
+  if (!_entryData) return;
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + esc(_entryData.title) + '</title>' +
+    '<style>body{font-family:SimSun,serif;font-size:12pt;line-height:1.8;color:#333;max-width:800px;margin:40px auto;padding:0 20px}' +
+    'h1{font-size:22pt;text-align:center}h2{font-size:16pt;border-bottom:1px solid #ccc}h3{font-size:14pt}' +
+    'p{margin:6pt 0}pre{background:#f5f5f5;padding:10pt;border:1px solid #ddd}code{background:#f5f5f5;padding:1pt 4pt}' +
+    'blockquote{border-left:3px solid #1a73e8;padding:6pt 12pt;margin:10pt 0;background:#f8fafc}' +
+    'ul,ol{margin:6pt 0;padding-left:20pt}</style></head><body>' +
+    '<h1>' + esc(_entryData.title) + '</h1>' +
+    '<div>' + mdPlain(_entryData.content || '') + '</div></body></html>';
+  var blob = new Blob([html], { type: 'application/msword;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = _entryData.title + '.doc'; a.click();
+  URL.revokeObjectURL(url);
+}
+function downloadFile(content, filename) {
+  var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function mdPlain(text) {
+  if (!text) return '';
+  var t = esc(text);
+  t = t.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+  t = t.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  t = t.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+  t = t.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  t = t.replace(/^>- (.+)$/gm, '<blockquote>$1</blockquote>');
+  t = t.replace(/^- (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+  t = t.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  t = t.replace(/\n\s*\n/g, '</p><p>');
+  t = '<p>' + t + '</p>';
+  t = t.replace(/<p><\/p>/g, '');
+  return t;
+}
+(async function() {
+  let _headingId = 0;
+  const token = window.location.pathname.replace('/share/', '');
+  if (!token || token === '') {
+    document.getElementById('app').innerHTML = '<div class="error-state"><h2>链接无效</h2><p>分享链接不完整</p></div>';
+    return;
+  }
+  try {
+    const res = await fetch('/api/share/' + token);
+    const data = await res.json();
+    if (data.code !== 0 || !data.data) {
+      document.getElementById('app').innerHTML = '<div class="error-state"><h2>分享已失效</h2><p>该分享链接可能已被作者停用</p></div>';
+      return;
+    }
+    const entry = data.data;
+    _entryData = entry;
+    const typeLabels = { note: '笔记', skill: '技能', task: '任务', idea: '想法', article: '文章' };
+    const html = renderHtml(entry);
+    document.getElementById('app').innerHTML = html;
+  } catch (e) {
+    document.getElementById('app').innerHTML = '<div class="error-state"><h2>加载失败</h2><p>无法加载分享内容</p></div>';
+  }
+  function renderHtml(entry) {
+    const contentHtml = md(entry.content || '');
+    const outlineItems = buildOutline(entry.content || '');
+    const typeLabels = { note: '笔记', skill: '技能', task: '任务', idea: '想法', article: '文章' };
+    const outlineSide = outlineItems.length > 0
+      ? '<div class="outline-sidebar-share">' +
+          '<div class="outline-title">📑 目录</div>' +
+          outlineItems.map(o => '<a class="outline-item ' + o.level + '" href="#' + o.id + '">' + esc(o.text) + '</a>').join('') +
+        '</div>'
+      : '';
+    const bodyWrap = outlineItems.length > 0
+      ? '<div class="body-with-outline">' + outlineSide + '<div class="content-main"><div class="entry-content">' + contentHtml + '</div></div></div>'
+      : '<div class="entry-content">' + contentHtml + '</div>';
+    return '<div class="card">' +
+        '<div class="entry-title">' + esc(entry.title) + '</div>' +
+        '<div class="entry-meta">' +
+          '<span class="type-badge ' + esc(String(entry.entry_type || '')) + '">' + (typeLabels[entry.entry_type] || esc(String(entry.entry_type || ''))) + '</span>' +
+          (entry.created_by ? '<span>✍️ ' + esc(entry.created_by) + '</span>' : '') +
+          '<span>' + esc(entry.created_at) + '</span>' +
+        '</div>' +
+        bodyWrap +
+      '</div>';
+  }
+  function buildOutline(text) {
+    if (!text) return [];
+    const items = [];
+    let idx = 0;
+    text.split('\n').forEach(line => {
+      const m = line.match(/^(#{1,3})\s+(.+)/);
+      if (!m) return;
+      idx++;
+      const level = 'h' + m[1].length;
+      items.push({ level, text: m[2].trim(), id: 'h' + idx });
+    });
+    return items;
+  }
+  function md(text) {
+    if (!text) return '';
+    _headingId = 0;
+    text = esc(text);
+    text = text.replace(/^### (.+)$/gm, function(_, t) { _headingId++; return '<h3 id="h' + _headingId + '">' + t + '</h3>'; });
+    text = text.replace(/^## (.+)$/gm, function(_, t) { _headingId++; return '<h2 id="h' + _headingId + '">' + t + '</h2>'; });
+    text = text.replace(/^# (.+)$/gm, function(_, t) { _headingId++; return '<h1 id="h' + _headingId + '">' + t + '</h1>'; });
+    text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+    text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    text = text.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    text = text.replace(/^>- (.+)$/gm, '<blockquote>$1</blockquote>');
+    text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+    text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+    text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+    text = text.replace(/\n\s*\n/g, '</p><p>');
+    text = '<p>' + text + '</p>';
+    text = text.replace(/<p><\/p>/g, '');
+    return text;
+  }
+})();
+</script>
+</body>
+</html>

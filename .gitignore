@@ -1,0 +1,46 @@
+# === Build artifacts ===
+build/
+server/build/
+.gradle/
+
+# === Database & user data (never commit) ===
+data/
+server/data/
+
+# === Compiled classes ===
+*.class
+
+# === Logs ===
+*.log
+logs/
+
+# === Backup files (use git history instead) ===
+*.bak
+
+# === Cloud sync conflict files ===
+*冲突文件*
+
+# === Vendored JARs (managed by Gradle; keep wrapper) ===
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# === Local-only config with personal paths/secrets ===
+config.local.*
+env.local.*
+opencode.md
+autostart.bat
+
+# === IDE files ===
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# === OS files ===
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# === Bundled JDK ===
+jdk17/

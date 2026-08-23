@@ -1,0 +1,25 @@
+1、web端项目D:\Projects\OpenCodeProject\KnowledgePCV1.0与手机端项目D:\Projects\OpenCodeProject\KnowledgeAppV1.16增加在同一局域网络，进行数据交换。
+2、数据管理模块，以web端为主服务器，手机端从web端全量导出。手机端批量选择知识条目、工作记录数据记录，导入到web端
+6、更新功能设计文档、数据库字典、操作手册、项目更新记录。
+
+
+使用流程
+从电脑全量导出到手机：
+
+手机点"🔄 同步" → 输入电脑 IP + 用户名密码 → 连接
+点击"从电脑全量导出"
+从手机批量导入到电脑：
+
+手机点"🔄 同步" → 连接电脑
+进入"知识"或"记录"Tab → 勾选"批量" → 勾选条目→ 点击"导入到电脑"
+
+1、web端项目D:\Projects\OpenCodeProject\KnowledgePCV1.0，登陆后刷新浏览器，用户显示未知。2、工作记录全部改为日常记录，“日报”部改为日记。
+
+1、D:\Projects\OpenCodeProject\KnowledgeAppV1.16进入"知识"或"记录"Tab → 勾选"批量" → 勾选条目→ 点击"导入到电脑"。提示导入一项到电脑，但是电脑端工作记录、知识条目都查不到 
+2、手机点"🔄 同步" → 输入电脑 IP + 用户名密码 → 连接成功，点击"从电脑全量导出"提示导入失败，实际知识条目导入成功，但是日常记录导入失败
+
+
+1、web端项目D:\Projects\OpenCodeProject\KnowledgePCV1.0新增功能，批量操作：知识条目和日记列表支持批量模式，可批量归档/删除/添加标签，批量操作支持确认对话框，防止误删除
+2、增加附件：新建条目/日记时即可添加附件，自动先创建条目再上传，详情页附件区域在删除操作后、内容正文前，方便快速管理
+
+D:\Projects\OpenCodeProject\KnowledgePCV1.0、D:\Projects\OpenCodeProject\KnowledgeAppV1.16，更新功能设计文档、数据库字典、操作手册、项目更新记录。
