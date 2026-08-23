@@ -1,5 +1,7 @@
 # KnowledgePC
 
+> 🌐 **在线主页**：https://wangjlx.github.io/KnowledgePC/
+
 本地优先的个人知识管理平台。单机部署、局域网访问，支持 Markdown 知识条目、工作记录、双链笔记、知识图谱、标签树、KB 目录增量导入与附件管理。
 
 ## 功能特性

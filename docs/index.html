@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="KnowledgePC - 本地优先的个人知识管理平台：Markdown 双链、知识图谱、KB 增量导入">
+<title>KnowledgePC - 本地优先的个人知识管理平台</title>
+<style>
+:root {
+  --bg: #0f1420;
+  --bg2: #161d2e;
+  --card: #1c2537;
+  --border: #2a3550;
+  --text: #e4e9f2;
+  --muted: #8a94aa;
+  --accent: #5b8cff;
+  --accent2: #38c6b4;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+nav {
+  position: sticky; top: 0; z-index: 10;
+  background: rgba(15,20,32,.85); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-inner { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+.logo { font-size: 19px; font-weight: 700; color: var(--text); letter-spacing: .5px; }
+.logo span { color: var(--accent); }
+nav .links { display: flex; gap: 26px; font-size: 14.5px; }
+nav .links a { color: var(--muted); }
+nav .links a:hover { color: var(--text); text-decoration: none; }
+
+.hero { padding: 90px 0 70px; text-align: center; }
+.hero h1 { font-size: 46px; font-weight: 800; letter-spacing: 1px; }
+.hero h1 em { font-style: normal; background: linear-gradient(120deg, var(--accent), var(--accent2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero p.sub { margin: 18px auto 0; max-width: 640px; color: var(--muted); font-size: 17px; }
+.btns { margin-top: 36px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.btn { display: inline-block; padding: 12px 30px; border-radius: 8px; font-size: 15.5px; font-weight: 600; transition: transform .15s, opacity .15s; }
+.btn:hover { transform: translateY(-2px); text-decoration: none; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-ghost { border: 1px solid var(--border); color: var(--text); background: var(--card); }
+.badges { margin-top: 28px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.badge { font-size: 12.5px; color: var(--muted); border: 1px solid var(--border); border-radius: 99px; padding: 4px 14px; background: var(--bg2); }
+
+section { padding: 64px 0; }
+.section-title { text-align: center; font-size: 30px; font-weight: 700; margin-bottom: 10px; }
+.section-desc { text-align: center; color: var(--muted); margin-bottom: 44px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 24px 22px; transition: transform .18s, border-color .18s;
+}
+.card:hover { transform: translateY(-4px); border-color: var(--accent); }
+.card .icon { font-size: 26px; }
+.card h3 { font-size: 16.5px; margin: 10px 0 6px; }
+.card p { font-size: 13.5px; color: var(--muted); }
+
+.tech-strip {
+  display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; margin-top: 40px;
+}
+.tech-item {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 22px; font-size: 14px; color: var(--text);
+}
+.tech-item b { color: var(--accent2); font-weight: 700; }
+
+.codebox {
+  background: #0b101b; border: 1px solid var(--border); border-radius: 12px;
+  padding: 26px 28px; max-width: 720px; margin: 0 auto; overflow-x: auto;
+}
+.codebox .cap { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+.codebox pre { font-family: Consolas, "Courier New", monospace; font-size: 13.8px; line-height: 1.9; color: #cdd6e4; }
+.codebox .cm { color: #5d6b85; }
+.codebox .hl { color: var(--accent2); }
+
+.docs-list { max-width: 720px; margin: 0 auto; }
+.doc-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px 22px; margin-bottom: 12px;
+}
+.doc-row:hover { border-color: var(--accent); }
+.doc-row b { font-size: 15px; }
+.doc-row small { color: var(--muted); }
+
+footer { border-top: 1px solid var(--border); padding: 34px 0; text-align: center; color: var(--muted); font-size: 13.5px; }
+footer a { color: var(--muted); }
+
+@media (max-width: 640px) {
+  .hero h1 { font-size: 32px; }
+  nav .links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <div class="logo">Knowledge<span>PC</span></div>
+    <div class="links">
+      <a href="#features">功能</a>
+      <a href="#tech">技术</a>
+      <a href="#start">快速开始</a>
+      <a href="#docs">文档</a>
+      <a href="https://github.com/wangjlx/KnowledgePC">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero wrap">
+  <h1>你的知识，<em>本地优先</em></h1>
+  <p class="sub">KnowledgePC 是一个单机部署、局域网可用的个人知识管理平台 —— Markdown 条目、双向链接、知识图谱、标签树，数据完全掌握在自己手中。</p>
+  <div class="btns">
+    <a class="btn btn-primary" href="https://github.com/wangjlx/KnowledgePC">GitHub 仓库</a>
+    <a class="btn btn-ghost" href="#start">快速开始</a>
+  </div>
+  <div class="badges">
+    <span class="badge">Java 17</span>
+    <span class="badge">SQLite WAL</span>
+    <span class="badge">零框架后端</span>
+    <span class="badge">无构建前端</span>
+    <span class="badge">MIT License</span>
+  </div>
+</header>
+
+<section id="features" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2 class="section-title">核心功能</h2>
+    <p class="section-desc">一个轻量但完整的个人知识库解决方案</p>
+    <div class="grid">
+      <div class="card"><div class="icon">📝</div><h3>知识条目</h3><p>Markdown 编辑、大纲导航、版本历史、收藏与公开分享链接。</p></div>
+      <div class="card"><div class="icon">🗂️</div><h3>工作记录</h3><p>日报、会议纪要、灵感想法分类记录，与知识条目相互独立。</p></div>
+      <div class="card"><div class="icon">🔗</div><h3>双链笔记</h3><p>[[页面名]] 与 [[目录/页面名]] 语法，导入时自动建立双向链接索引。</p></div>
+      <div class="card"><div class="icon">🕸️</div><h3>知识图谱</h3><p>Canvas 力导向图可视化关联网络，支持节点拖拽与布局记忆。</p></div>
+      <div class="card"><div class="icon">🏷️</div><h3>标签体系</h3><p>层级标签树、颜色管理、批量打标，多维度组织知识。</p></div>
+      <div class="card"><div class="icon">🔄</div><h3>KB 目录同步</h3><p>监控 wiki 目录，按文件修改时间增量导入，支持全量重建双链。</p></div>
+      <div class="card"><div class="icon">🔐</div><h3>用户与安全</h3><p>PBKDF2 密码哈希、角色权限、会话过期、CSP 与路径穿越防护。</p></div>
+      <div class="card"><div class="icon">💾</div><h3>备份迁移</h3><p>JSON 全量导出/导入，包含图谱布局坐标，换机不丢数据。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tech">
+  <div class="wrap">
+    <h2 class="section-title">技术架构</h2>
+    <p class="section-desc">极简依赖，一台装了 JDK 的电脑就能跑</p>
+    <div class="tech-strip">
+      <div class="tech-item"><b>Java 17</b> · 内置 HttpServer 无框架</div>
+      <div class="tech-item"><b>SQLite</b> · WAL 模式单文件数据库</div>
+      <div class="tech-item"><b>原生 JS</b> · 零构建零 npm</div>
+      <div class="tech-item"><b>Gradle</b> · Wrapper 一键编译</div>
+    </div>
+  </div>
+</section>
+
+<section id="start" style="background:var(--bg2)">
+  <div class="wrap">
+    <h2 class="section-title">快速开始</h2>
+    <p class="section-desc">三步启动，浏览器访问 http://127.0.0.1:8080</p>
+    <div class="codebox">
+      <div class="cap">Windows（Linux/macOS 使用对应 .sh 脚本）</div>
+<pre><span class="cm"># 1. 克隆仓库（需 JDK 17+）</span>
+<span class="hl">git clone</span> https://github.com/wangjlx/KnowledgePC.git
+<span class="hl">cd</span> KnowledgePC
+
+<span class="cm"># 2. 编译</span>
+compile.bat
+
+<span class="cm"># 3. 启动</span>
+start.bat</pre>
+    </div>
+  </div>
+</section>
+
+<section id="docs">
+  <div class="wrap">
+    <h2 class="section-title">项目文档</h2>
+    <p class="section-desc">从设计到运维的完整中文文档</p>
+    <div class="docs-list">
+      <a class="doc-row" href="./功能设计文档.md"><b>📖 功能设计文档</b><small>架构 · 接口 · 页面结构</small></a>
+      <a class="doc-row" href="./数据库字典.md"><b>🗄️ 数据库字典</b><small>全部表结构与字段说明</small></a>
+      <a class="doc-row" href="./操作手册.md"><b>📗 操作手册</b><small>安装配置与日常使用</small></a>
+      <a class="doc-row" href="./项目更新记录.md"><b>📜 更新记录</b><small>v1.0 → v1.8.4 演进史</small></a>
+      <a class="doc-row" href="./优化记录.txt"><b>⚡ 优化记录</b><small>性能与体验优化清单</small></a>
+      <a class="doc-row" href="./部署记录.txt"><b>🚀 部署记录</b><small>实际部署过程备忘</small></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>KnowledgePC · 数据自主可控的本地知识库 · <a href="https://github.com/wangjlx/KnowledgePC/blob/main/LICENSE">MIT License</a></p>
+    <p style="margin-top:6px">© 2026 <a href="https://github.com/wangjlx">wangjlx</a> · Built with Java & ❤️</p>
+  </div>
+</footer>
+
+</body>
+</html>
