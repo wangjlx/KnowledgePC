@@ -4,11 +4,11 @@
 
 ## 部署步骤
 一、标准命令
-cd "D:\1、天翼云盘同步盘\15285514095\Projects\OpenCodeProject"
+cd "D:\Projects\OpenCodeProject"
 git clone https://github.com/wangjlx/KnowledgePC.git KnowledgePC_github
 
 二、启动方式（就两步）
-cd /d "D:\1、天翼云盘同步盘\15285514095\Projects\OpenCodeProject\KnowledgePC_github"
+cd /d "D:\Projects\OpenCodeProject\KnowledgePC_github"
 compile.bat    ← 仅首次/改代码后需要
 start.bat      ← 每次启动（自动找到旁边的 JDK17）
 
@@ -24,3 +24,10 @@ Server started on http://127.0.0.1:8080
   Knowledge Server started
   Web UI: http://127.0.0.1:8080
   API:    http://127.0.0.1:8080/api/stats
+
+五、日常更新只需三步
+标准三步流程
+cd /d "D:\Projects\OpenCodeProject\KnowledgePC_github"
+git add .                # 1. 暂存所有改动（.gitignore 自动排除数据库/日志/配置）
+git commit -m "写清楚改了什么"   # 2. 提交到本地仓库
+git push                 # 3. 推送到 GitHub（授权已保存，不会再弹窗
