@@ -1,0 +1,26 @@
+# KnowledgePC
+
+本地优先的个人知识管理平台。单机部署、局域网访问，支持 Markdown 知识条目、工作记录、双链笔记、知识图谱、标签树、KB 目录增量导入与附件管理。
+
+## 部署步骤
+一、标准命令
+cd "D:\1、天翼云盘同步盘\15285514095\Projects\OpenCodeProject"
+git clone https://github.com/wangjlx/KnowledgePC.git KnowledgePC_github
+
+二、启动方式（就两步）
+cd /d "D:\1、天翼云盘同步盘\15285514095\Projects\OpenCodeProject\KnowledgePC_github"
+compile.bat    ← 仅首次/改代码后需要
+start.bat      ← 每次启动（自动找到旁边的 JDK17）
+
+三、必知事项
+事项	说明
+1. 全新数据库	data/ 未上传，克隆版首次启动已生成空库，admin 密码是随机生成的——现在去看服务器黑窗口，密码只打印这一次
+2. KB 目录未配置	config.local.bat 被 gitignore 了，此副本默认找不存在的 .\KB。需要 KB 功能的话，参照原版建一个（设 KNOWLEDGE_KB_ROOT）
+
+四、启动信息
+[init] Created default admin account 'admin'; initial password: Ka55000a0622695  (rotate it after first login)
+Server started on http://127.0.0.1:8080
+====================================================
+  Knowledge Server started
+  Web UI: http://127.0.0.1:8080
+  API:    http://127.0.0.1:8080/api/stats

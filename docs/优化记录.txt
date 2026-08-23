@@ -23,3 +23,5 @@
 2、增加附件：新建条目/日记时即可添加附件，自动先创建条目再上传，详情页附件区域在删除操作后、内容正文前，方便快速管理
 
 D:\Projects\OpenCodeProject\KnowledgePCV1.0、D:\Projects\OpenCodeProject\KnowledgeAppV1.16，更新功能设计文档、数据库字典、操作手册、项目更新记录。
+
+联系方式：782223186@qq.com
