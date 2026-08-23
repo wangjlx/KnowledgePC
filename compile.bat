@@ -2,7 +2,7 @@
 set BASE=%~dp0
 set CMD=javac
 if exist "%BASE%..\jdk17\jdk-17.0.2\bin\javac.exe" set CMD="%BASE%..\jdk17\jdk-17.0.2\bin\javac"
-if exist "%JAVA_HOME%\bin\javac.exe" set CMD="%JAVA_HOME%\bin\javac"
+if exist "%JAVA_HOME%\bin\javac.exe" set CMD="%JAVA_HOME%\bin\javac.exe"
 if not exist %CMD% (
     where javac >nul 2>nul || (
         echo [ERROR] Java compiler not found. Set JAVA_HOME or install JDK 11+.
