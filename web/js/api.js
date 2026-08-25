@@ -91,7 +91,11 @@ const API = {
   // Export/Import
   exportData(source) { return this.request('GET', '/export?source=' + (source || 'web')); },
   importData(data, source) { return this.request('POST', '/import?source=' + (source || 'web'), data); },
-  importKb(path) { return this.request('POST', '/import/kb?path=' + encodeURIComponent(path || '')); },
+  importKb(path, relinks) {
+    let q = '/import/kb?path=' + encodeURIComponent(path || '');
+    if (relinks) q += '&relinks=1';
+    return this.request('POST', q);
+  },
 
   // Batch operations
   batchEntries(ids, action, data) {

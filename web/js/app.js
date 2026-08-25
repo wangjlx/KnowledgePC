@@ -1766,7 +1766,7 @@ const App = {
         <button class="btn btn-primary" onclick="App.importData()">导入数据</button>
         <hr style="margin:14px 0;border:none;border-top:1px solid var(--border-color, #eee)"/>
         <p style="color:var(--text-secondary);margin-bottom:12px">从本地知识库目录（KB）自动扫描导入 wiki / external-wiki / skills / 日报等文件，已存在的条目会自动跳过。</p>
-        <button class="btn" onclick="App.importKb()">📂 从KB目录导入</button>
+        <button class="btn" onclick="App.importKbDialog()">📂 从KB目录导入</button>
         <div id="kbImportResult" style="margin-top:10px;font-size:13px;white-space:pre-wrap"></div>
       </div>
       <div class="card">
@@ -1776,7 +1776,7 @@ const App = {
       <div class="card">
         <div class="card-header"><h3>ℹ️ 关于</h3></div>
         <p style="color:var(--text-secondary);font-size:14px">
-          知识库 v1.8.4<br/>
+          知识库 v1.8.5<br/>
           个人知识管理平台 · 离线优先 · 数据本地存储<br/>
           所有数据存储在本地 SQLite 数据库中，保障隐私安全。
         </p>
@@ -1842,13 +1842,39 @@ const App = {
     }
   },
 
-  async importKb() {
+  async importKbDialog() {
+    document.getElementById('modalContent').innerHTML = `
+      <h3>📂 从KB目录导入</h3>
+      <div class="form-group"><label>知识库目录（可选）</label>
+        <input type="text" id="kbImportPath" placeholder="留空 = 导入整个KB根目录" style="width:100%"/>
+        <small style="color:#8a94aa;display:block;margin-top:4px">支持 KB 根目录及其子目录；其他目录需在服务端配置环境变量 KNOWLEDGE_KB_EXTRA_ROOTS（多个用分号分隔）后重启服务</small>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+          <input type="checkbox" id="kbImportRelinks"/> 全量重建双链（扫描所有条目重新解析 [[链接]]，较耗时）
+        </label>
+      </div>
+      <div class="actions">
+        <button class="btn" onclick="App.closeModal()">取消</button>
+        <button class="btn btn-primary" onclick="App.doImportKb()">开始导入</button>
+      </div>
+    `;
+    this.showModal();
+    const inp = document.getElementById('kbImportPath');
+    inp && inp.focus();
+  },
+
+  async doImportKb() {
+    const path = (document.getElementById('kbImportPath') || {}).value || '';
+    const relinks = !!(document.getElementById('kbImportRelinks') || {}).checked;
+    this.closeModal();
     const res = document.getElementById('kbImportResult');
-    if (res) res.textContent = '正在扫描KB目录...';
+    if (res) res.textContent = '正在扫描目录' + (path ? `: ${path}` : '') + (relinks ? '（含全量重建双链）' : '') + '...';
     try {
-      const data = await API.importKb('');
+      const data = await API.importKb(path.trim(), relinks);
       if (res) {
         const parts = [
+          `导入目录: ${path.trim() || '(KB根目录)'}`,
           `条目新增: ${data.entries_new}`,
           `条目同步更新: ${data.entries_updated || 0}`,
           `条目跳过(已存在): ${data.entries_skip}`,
@@ -1858,6 +1884,7 @@ const App = {
           `新增链接: ${data.links}`,
           `新增标签: ${data.tags}`
         ];
+        if (relinks) parts.splice(1, 0, `重建双链: ${data.relinks || 0}`);
         if (data.errors && data.errors.length) parts.push('错误:\n' + data.errors.join('\n'));
         res.textContent = parts.join('\n');
       }

@@ -30,6 +30,25 @@ public class ApiServer {
     private static final String DEFAULT_KB_ROOT =
         System.getenv("KNOWLEDGE_KB_ROOT") != null && !System.getenv("KNOWLEDGE_KB_ROOT").trim().isEmpty()
             ? System.getenv("KNOWLEDGE_KB_ROOT").trim() : "./KB";
+    // KB 导入允许的根目录白名单：默认根 + KNOWLEDGE_KB_EXTRA_ROOTS（分号/逗号分隔）追加的扩展根
+    private static final List<java.nio.file.Path> KB_ALLOWED_ROOTS = buildKbAllowedRoots();
+    private static List<java.nio.file.Path> buildKbAllowedRoots() {
+        List<java.nio.file.Path> roots = new ArrayList<>();
+        try {
+            roots.add(Paths.get(DEFAULT_KB_ROOT).toAbsolutePath().normalize());
+        } catch (Exception ignored) {}
+        String extra = System.getenv("KNOWLEDGE_KB_EXTRA_ROOTS");
+        if (extra != null && !extra.trim().isEmpty()) {
+            for (String p : extra.split("[;,]")) {
+                if (p.trim().isEmpty()) continue;
+                try {
+                    java.nio.file.Path r = Paths.get(p.trim()).toAbsolutePath().normalize();
+                    if (!roots.contains(r)) roots.add(r);
+                } catch (Exception ignored) {}
+            }
+        }
+        return roots;
+    }
     // 请求体上限 25MB（附件 base64 膨胀约 33%，足够常规文档）
     private static final int MAX_BODY_BYTES = 25 * 1024 * 1024;
     // 请求处理线程池：避免每连接无限建线程
@@ -1267,13 +1286,27 @@ try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("
         if (path.equals("/api/import/kb") && method.equals("POST")) {
             String kbu = authUser(headers, query);
             if (kbu.isEmpty()) return jsonError("未登录");
-            // 安全：仅允许导入配置的 KB 根目录，忽略/拒绝任意 path 参数（防目录穿越读取敏感文件）
+            // 安全：path 必须位于白名单根目录（默认 KB 根 + KNOWLEDGE_KB_EXTRA_ROOTS 扩展根）之内，防目录穿越
             String kbRoot = query.getOrDefault("path", "");
             if (kbRoot.isEmpty()) kbRoot = DEFAULT_KB_ROOT;
-            java.nio.file.Path requested = Paths.get(kbRoot).toAbsolutePath().normalize();
-            java.nio.file.Path allowedRoot = Paths.get(DEFAULT_KB_ROOT).toAbsolutePath().normalize();
-            if (!requested.equals(allowedRoot) && !requested.startsWith(allowedRoot)) {
-                return jsonError("仅允许导入配置的 KB 根目录: " + DEFAULT_KB_ROOT);
+            java.nio.file.Path requested;
+            try {
+                requested = Paths.get(kbRoot).toAbsolutePath().normalize();
+            } catch (Exception e) {
+                return jsonError("路径不合法: " + kbRoot);
+            }
+            boolean allowed = false;
+            for (java.nio.file.Path root : KB_ALLOWED_ROOTS) {
+                if (requested.equals(root) || requested.startsWith(root)) { allowed = true; break; }
+            }
+            if (!allowed) {
+                StringBuilder rootsText = new StringBuilder();
+                for (java.nio.file.Path root : KB_ALLOWED_ROOTS) {
+                    if (rootsText.length() > 0) rootsText.append("；");
+                    rootsText.append(root);
+                }
+                return jsonError("目录不在允许范围内。允许的根目录: " + rootsText
+                    + "。如需导入其他目录，请在服务端配置环境变量 KNOWLEDGE_KB_EXTRA_ROOTS（多个用分号分隔）后重启服务");
             }
             if (!Files.exists(requested) || !Files.isDirectory(requested)) {
                 return jsonError("KB目录不存在: " + kbRoot);
@@ -1281,7 +1314,7 @@ try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("
             try (PreparedStatement stmt = conn.prepareStatement(
                 "INSERT INTO operation_logs (action, detail, source, username) VALUES (?,?,?,?)")) {
                 stmt.setString(1, "import_kb");
-                stmt.setString(2, "从KB目录导入");
+                stmt.setString(2, "从KB目录导入: " + requested);
                 stmt.setString(3, "kb");
                 stmt.setString(4, kbu);
                 stmt.executeUpdate();
@@ -1289,7 +1322,7 @@ try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("
             long[] counters = new long[9]; // 0:entries_new 1:entries_skip 2:records_new 3:records_skip 4:links 5:tags 6:entries_updated 7:records_updated 8:relinks
             boolean relinks = "1".equals(query.getOrDefault("relinks", ""));
             List<String> errs = new ArrayList<>();
-            importKbIntoDb(conn, Paths.get(kbRoot), counters, errs, relinks);
+            importKbIntoDb(conn, requested, counters, errs, relinks);
             return "{\"code\":0,\"msg\":\"KB目录导入完成\",\"data\":{\"entries_new\":" + counters[0]
                 + ",\"entries_skip\":" + counters[1]
                 + ",\"records_new\":" + counters[2]
@@ -1783,6 +1816,15 @@ try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery("
         collectKbFiles(root.resolve("team-outputs"), ".md", teamOutputFiles, false);
         collectKbFiles(root.resolve("raw"), ".md", rawFiles, false);
         collectKbFiles(root.resolve("external-raw"), ".md", externalRawFiles, false);
+
+        // 根目录下散落的 .md 也作为个人笔记导入（兼容自定义目录的扁平结构），跳过 README.md
+        try (java.util.stream.Stream<Path> rootScan = Files.list(root)) {
+            rootScan.filter(Files::isRegularFile)
+                .filter(p -> p.getFileName().toString().toLowerCase().endsWith(".md"))
+                .filter(p -> !"readme.md".equals(p.getFileName().toString().toLowerCase()))
+                .forEach(wikiFiles::add);
+        } catch (Exception ignoredRootScan) {}
+        wikiFiles.sort(Comparator.naturalOrder());
 
         // Load existing titles to support incremental (skip on re-import)
         Set<String> existingEntryTitles = new HashSet<>();

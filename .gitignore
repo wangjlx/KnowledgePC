@@ -7,6 +7,11 @@ server/build/
 data/
 server/data/
 
+# === Local KB directories (personal knowledge, never commit) ===
+/KB/
+KB_test/
+KB_test2/
+
 # === Compiled classes ===
 *.class
 
